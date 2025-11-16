@@ -89,15 +89,74 @@ NAME    ID      SIZE    MODIFIED
 ### Did it work for you?
 > Please share your experience and feedback
 
-# Optional Lab
+## ⚙️ Optional Lab: Deploy the Runtime Application
 
-### Deploy the runtime application
+This lab guides you through deploying the `semantic-sonnenschirm` application using Helm and verifying its status on OpenShift.
 
-In short,
+-----
+
+### 1\. Verify Current Project (Namespace)
+
+Before deployment, ensure you are in the correct namespace for your lab environment. Replace `userXX-sonnenschirm` with your assigned project name.
+
+```bash
+oc project userXX-sonnenschirm
 ```
+
+-----
+
+### 2\. Deploy the Application with Helm
+
+Use **Helm** to install the application's resources (backend, sender, and processor Pods) defined in the local chart.
+
+This command installs a new **release** named `semantic-sonnenschirm` from the local chart directory `helm/semantic-sonnenschirm`, applying a label that identifies all created resources as part of `test-app`.
+
+| Component | Description |
+| :--- | :--- |
+| `semantic-sonnenschirm` | The **name** of the Helm release. |
+| `helm/semantic-sonnenschirm` | The path to the local **Helm chart**. |
+| `--labels ...` | Adds custom Kubernetes labels to all deployed resources for grouping/tracking. |
+
+```bash
 helm install semantic-sonnenschirm helm/semantic-sonnenschirm --labels app.kubernetes.io/part-of=test-app
 ```
 
-### Does it work for you?
-- Check the pod logs
-- View the Web UI
+**Expected Output:**
+
+```bash
+NAME: semantic-sonnenschirm
+LAST DEPLOYED: Sun Nov 16 19:43:47 2025
+NAMESPACE: userXX-sonnenschirm
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+```
+
+-----
+
+### 3\. Verify Pod Status
+
+Confirm that the application's components—the **backend**, **processor**, and **sender** Pods—are running successfully.
+
+```bash
+oc get pods
+```
+
+**Expected Output (all Pods should show `1/1` in `READY` and `Running` in `STATUS`):**
+
+```bash
+NAME                                               READY   STATUS    RESTARTS   AGE
+semantic-sonnenschirm-backend-578f968787-5fzrw     1/1     Running   0          3m15s
+semantic-sonnenschirm-processor-754dfcfb69-bkp99   1/1     Running   0          3m15s
+semantic-sonnenschirm-sender-6c5f875ccc-2sjsl      1/1     Running   0          3m15s
+```
+
+-----
+
+### 4\. Retrieve Application URL
+
+The **backend** component is exposed externally via an OpenShift **Route**. Use `jsonpath` to extract just the hostname (URL) for the backend service.
+
+```bash
+oc get route semantic-sonnenschirm-backend --output=jsonpath='{.spec.host}'
+```
