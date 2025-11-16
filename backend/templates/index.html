@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Semantic Sonnenschirm Claim Viewer</title>
+    <style>
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f4f8;
+            margin: 0;``
+            padding: 20px;
+            display: flex;
+            justify-content: start;
+            align-items: top;
+            height: 100vh;
+        }
+        table {
+            width: 80%;
+            border-collapse: collapse;
+            margin: 20px auto;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 12px 20px;
+            text-align: left;
+        }
+        th {
+            background-color: #da3907;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        td {
+            border-bottom: 1px solid #ddd;
+        }
+        caption {
+            font-size: 1.5em;
+            margin: 10px 0;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        /* Modal styling */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed;
+            z-index: 1;
+            padding-top: 100px;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4); /* Black background with opacity */
+        }
+        .modal-content {
+            background-color: #fff;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }        
+    </style>
+    <script>
+        // JavaScript to refresh the page every 10 seconds (10000ms)
+        setInterval(function() {
+            window.location.reload();
+        }, 10000);
+
+        // Function to open modal with full message
+        function openModal(message) {
+            document.getElementById("modalMessage").innerHTML = message;
+            document.getElementById("messageModal").style.display = "block";
+        }
+
+        // Function to close modal
+        function closeModal() {
+            document.getElementById("messageModal").style.display = "none";
+        }        
+    </script>
+</head>
+<body>
+    <table>
+        <caption>Semantic Sonnenschirm</caption>        
+        <thead>
+            <tr>
+                <th>Time</th>
+                <th>Name</th>
+                <th>Address</th>
+                <th>Policy</th>
+                <th>Telephone</th>
+                <th>Accident Location</th>
+                <th>Date</th>
+                <th>Time</th>                                                                  
+                <th>Claim</th>
+                <th>Claim Details</th>                
+            </tr>
+        </thead>
+        <tbody>
+            {% for event in events %}
+            <tr>
+                <td>{{ event.time }}</td>
+                <td>{{ event.name }}</td>
+                <td>{{ event.address }}</td>
+                <td>{{ event.policy }}</td>
+                <td>{{ event.telephone }}</td>
+                <td>{{ event.location }}</td>
+                <td>{{ event.adate }}</td>
+                <td>{{ event.atime }}</td>
+                <td>
+                    {{ event.message[:100] }}{% if event.message|length > 100 %}...{% endif %}
+                </td>
+                <td>
+                    <button onclick="openModal('{{ event.message }}') ">View Details</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <!-- Modal structure -->
+    <div id="messageModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <p id="modalMessage"></p>
+        </div>
+    </div>
+</body>
+</html>

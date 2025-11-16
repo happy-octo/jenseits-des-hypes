@@ -1,0 +1,109 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: {{ .Release.Name }}-backend
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/part-of: test-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: backend
+          image: quay.io/semantic-sonnenschirm/backend:latest
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          env:
+            - name: LOGLEVEL
+              value: INFO
+            - name: MAXEVENTS
+              value: "20"
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - '-c'
+                - ps aux | grep 'python' | grep -v 'grep'
+            initialDelaySeconds: 5
+            timeoutSeconds: 1
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+          livenessProbe:
+            exec:
+              command:
+                - "sh"
+                - "-c"
+                - "ps aux | grep 'python' | grep -v 'grep'"
+            initialDelaySeconds: 15  # Wait before first probe
+            periodSeconds: 10        # Probe every 10 seconds
+          startupProbe:
+            exec:
+              command:              
+                - "sh"
+                - "-c"
+                - "ps aux | grep 'python' | grep -v 'grep'"
+            failureThreshold: 30    # Fail after 30 unsuccessful attempts
+            periodSeconds: 5        # Probe every 5 seconds            
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          imagePullPolicy: Always
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      securityContext: {}
+      schedulerName: default-scheduler
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 25%
+      maxSurge: 25%
+  revisionHistoryLimit: 3
+  progressDeadlineSeconds: 600
+---
+# Service that exposes backend app.
+# This will be the subscriber for the Trigger
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-backend
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    app: backend
+  ports:
+    - name: 8080-tcp
+      protocol: TCP
+      port: 8080
+      targetPort: 8080
+    - name: 80-tcp
+      protocol: TCP
+      port: 80
+      targetPort: 8080          
+---
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: {{ .Release.Name }}-backend
+  namespace: {{ .Release.Namespace }}
+spec:
+  to:
+    kind: Service
+    name: {{ .Release.Name }}-backend
+    weight: 100
+  port:
+    targetPort: 8080-tcp
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+  wildcardPolicy: None          

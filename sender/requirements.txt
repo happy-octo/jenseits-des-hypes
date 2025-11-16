@@ -1,0 +1,3 @@
+cloudevents
+jsonlines==4.0.0
+

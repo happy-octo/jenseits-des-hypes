@@ -1,0 +1,29 @@
+apiVersion: eventing.knative.dev/v1
+kind: Broker
+metadata:
+  name: default
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/part-of: test-app  
+spec: {}
+---
+# Knative Eventing Trigger to trigger the processor service
+apiVersion: eventing.knative.dev/v1
+kind: Trigger
+metadata:
+  name: {{ .Release.Name }}-processor
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/part-of: test-app  
+spec:
+  broker: default
+  filter:
+    attributes:
+      type: semantic.sonnenschirm.rawclaim
+      source: semantic.sonnenschirm/sender
+  subscriber:
+    ref:
+      apiVersion: v1
+      kind: Service
+      name: {{ .Release.Name }}-processor
+

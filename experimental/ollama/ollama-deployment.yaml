@@ -1,0 +1,130 @@
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: ollama-data
+  namespace: semantic-sonnenschirm-ollama
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+  volumeMode: Filesystem
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: ollama
+  namespace: semantic-sonnenschirm-ollama
+  labels:
+    app: ollama
+    app.kubernetes.io/component: ollama
+    app.kubernetes.io/instance: ollama
+    app.kubernetes.io/name: ollama
+    app.kubernetes.io/part-of: ollama-app
+    app.openshift.io/runtime: golang
+    app.openshift.io/runtime-namespace: ollama
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ollama
+  template:
+    metadata:
+      labels:
+        app: ollama
+        deployment: ollama     
+    spec:
+      containers:
+        - name: ollama
+          image: 'docker.io/ollama/ollama:0.4.2'
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              memory: 500Mi
+#            limits:
+#              memory: 2Gi
+#              nvidia.com/gpu: '1'
+          ports:
+            - containerPort: 11434
+              protocol: TCP
+          securityContext:
+            allowPrivilegeEscalation: false
+            seccompProfile:
+              type: RuntimeDefault
+            runAsNonRoot: true
+            capabilities:
+              drop:
+              - ALL
+          volumeMounts:
+            - name: ollama-data
+              mountPath: /.ollama
+#      tolerations:
+#        - key: nvidia.com/gpu
+#          operator: Exists
+#          effect: NoScheduleapiVersion: datasciencecluster.opendatahub.io/v1
+kind: DataScienceCluster
+metadata:
+  name: default-dsc
+  labels:
+    app.kubernetes.io/created-by: rhods-operator
+    app.kubernetes.io/instance: default-dsc
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: datasciencecluster
+    app.kubernetes.io/part-of: rhods-operator
+spec:
+  components:
+    codeflare:
+      managementState: Removed   
+    kserve:
+      defaultDeploymentMode: RawDeployment
+      managementState: Managed
+      serving:
+        managementState: Removed
+        name: knative-serving
+    trustyai:
+      managementState: Removed
+    ray:
+      managementState: Removed
+    kueue:
+      managementState: Removed
+    workbenches:
+      managementState: Managed
+    dashboard:
+      managementState: Managed
+    modelmeshserving:
+      managementState: Removed
+    datasciencepipelines:
+      managementState: Managed
+    trainingoperator:
+      managementState: Removed
+      restartPolicy: Always
+      volumes:
+        - name: ollama-data
+          persistentVolumeClaim:
+            claimName: ollama-data
+# Hack for Stormshift OCP5 
+      nodeSelector:
+        node-type: baremetal             
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: ollama
+  namespace: semantic-sonnenschirm-ollama
+  labels:
+    app: ollama
+    app.kubernetes.io/component: ollama
+    app.kubernetes.io/instance: ollama
+    app.kubernetes.io/name: ollama
+    app.kubernetes.io/part-of: ollama-app
+spec:
+  ports:
+    - name: 11434-tcp
+      protocol: TCP
+      port: 11434
+      targetPort: 11434
+  selector:
+    app: ollama
+    deployment: ollama

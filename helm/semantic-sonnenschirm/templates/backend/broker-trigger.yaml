@@ -1,0 +1,20 @@
+# Knative Eventing Trigger to trigger the backend service
+apiVersion: eventing.knative.dev/v1
+kind: Trigger
+metadata:
+  name: {{ .Release.Name }}-backend
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/part-of: test-app  
+spec:
+  broker: default
+  filter:
+    attributes:
+      type: semantic.sonnenschirm.response
+      source: semantic.sonnenschirm/processor
+  subscriber:
+    ref:
+      apiVersion: v1
+      kind: Service
+      name: {{ .Release.Name }}-backend
+
