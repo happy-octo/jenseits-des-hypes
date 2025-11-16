@@ -79,7 +79,7 @@ NAME    ID      SIZE    MODIFIED
 
 ### Explore Structured information extraction with a specialized small LLM
 - You opened the workbench, now you are in a JupyterLab environment.
-- Clone the github repo https://github.com/stefan-bergstein/sonnenschirm.git
+- Clone the github repo https://github.com/happy-octo/jenseits-des-hypes.git
    - There are many ways to clone repos. Find your choice.
  - Navigate and open `sonnenschrim/notesbooks/01_structured_extraction`
  - Walk through the notebook and have fun
