@@ -33,7 +33,7 @@ Your OpenShift project `userXX-sonnenschirm` is also a OpenShift AI Data Science
 - Within your project, navigate to `Models`
 - Hit `Deploy Model` (We are not deploying a model here, just ollama)
 - Enter:
-  - `Model deployment name: ollama`
+  - `Model deployment name: semantic-sonnenschirm`
   - `Serving runtime: Ollama`
   - `Model framework: Ollama`
   - `Number of model server replicas to deploy: 1`
@@ -83,9 +83,21 @@ NAME    ID      SIZE    MODIFIED
    - There are many ways to clone repos. Find your choice.
  - Navigate and open `sonnenschrim/notesbooks/01_structured_extraction`
  - Walk through the notebook and have fun
-   - Hint: Updated `OLLAMA_HOST=` ... check your in OpenShift Networking/Services for your `ollama-predictor`
+   - Hint: Updated `OLLAMA_HOST=` ... check your in OpenShift Networking/Services for your `semantic-sonnenschirm-predictor`
 
 ---
 ### Did it work for you?
 > Please share your experience and feedback
 
+# Optional Lab
+
+### Deploy the runtime application
+
+In short,
+```
+helm install semantic-sonnenschirm helm/semantic-sonnenschirm --labels app.kubernetes.io/part-of=test-app
+```
+
+### Does it work for you?
+- Check the pod logs
+- View the Web UI
