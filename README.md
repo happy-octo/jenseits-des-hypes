@@ -8,7 +8,7 @@
 - The password is `*****` (see Slide)
 - Login to OpenShift. https://red.ht/jenseits-des-hypes
 - You have a project `userXX-sonnenschirm`
-- Navigate to OpenShift AI via the 9-dot menu.
+- Navigate to OpenShift AI via the 9-dot menu on the top right.
 
 ## Deploy a ollama serving runtime
 
@@ -39,7 +39,7 @@ Your OpenShift project `userXX-sonnenschirm` is also a OpenShift AI Data Science
   - `Number of model server replicas to deploy: 1`
   - `Model server size: Small`
   - `Accelerator: No`
-  - `Token authentication: no`
+  - `Model route: no`
   - `Require token authentication: no`
   - `Existing connection: ollama`
   - `Path: ollama`
@@ -69,7 +69,7 @@ NAME    ID      SIZE    MODIFIED
   - `Description: <write-a-poem-about-your-favorite-pet>`
   - `Workbench image: Jupyter | Minimal | CPU | Python 3.12`
   - `Version selection: 2025.2`
-  -  `Container size: Small`
+  - `Container size: Small`
   - `Accelerator: No   `
   - `Environment variables: None`
   - `Cluster storage` keep suggested default values
@@ -79,11 +79,17 @@ NAME    ID      SIZE    MODIFIED
 
 ### Explore Structured information extraction with a specialized small LLM
 - You opened the workbench, now you are in a JupyterLab environment.
-- Clone the github repo https://github.com/happy-octo/jenseits-des-hypes.git
-   - There are many ways to clone repos. Find your choice.
+- `git clone` the github repo https://github.com/happy-octo/jenseits-des-hypes.git
+  - There are many ways to clone repos. Find your choice.
  - Navigate and open `sonnenschrim/notesbooks/01_structured_extraction`
  - Walk through the notebook and have fun
-   - Hint: Updated `OLLAMA_HOST=` ... check your in OpenShift Networking/Services for your `semantic-sonnenschirm-predictor`
+ - Read and execute each cell (Shift-Enter is your friend)
+   - Hint: Updated `OLLAMA_HOST=` ... look in the OpenShift Console -> Networking/Services for your `semantic-sonnenschirm-predictor`
+   - E.g.,
+```
+#OLLAMA_HOST="localhost"
+OLLAMA_HOST="semantic-sonnenschirm-predictor.user1-sonnenschirm.svc.cluster.local"
+```
 
 ---
 ### Did it work for you?
@@ -92,6 +98,7 @@ NAME    ID      SIZE    MODIFIED
 ## ⚙️ Optional Lab: Deploy the Runtime Application
 
 This lab guides you through deploying the `semantic-sonnenschirm` application using Helm and verifying its status on OpenShift.
+Use the Web Terminal in the OpenShift Console (top right `>\`), in case you don't have the `helm` cli on your laptop
 
 -----
 
@@ -102,6 +109,13 @@ Before deployment, ensure you are in the correct namespace for your lab environm
 ```bash
 oc project userXX-sonnenschirm
 ```
+
+Clone the repo again
+```bash
+git clone https://github.com/happy-octo/jenseits-des-hypes.git
+cd jenseits-des-hypes/
+```
+
 
 -----
 
@@ -151,6 +165,9 @@ semantic-sonnenschirm-processor-754dfcfb69-bkp99   1/1     Running   0          
 semantic-sonnenschirm-sender-6c5f875ccc-2sjsl      1/1     Running   0          3m15s
 ```
 
+**Or, explore the pods in the OpenShift Console**
+
+
 -----
 
 ### 4\. Retrieve Application URL
@@ -160,3 +177,9 @@ The **backend** component is exposed externally via an OpenShift **Route**. Use 
 ```bash
 oc get route semantic-sonnenschirm-backend --output=jsonpath='{.spec.host}'
 ```
+
+Or, use the OpenShift Console to find the Route.
+
+---
+### Did it work for you?
+> Please share your experience and feedback
